@@ -54,9 +54,14 @@ public class mainProgram {
         while (true){
             String newKey="";
             try{
-                newKey = getClipboardString();
+                var theKey=getClipboardString();
+                if(!theKey.isSupport){
+                    txt.setText("Don't copy other thing except text");
+                    continue;
+                }
+                newKey = theKey.content;
             }catch (IllegalStateException e){
-
+                e.printStackTrace();
             }
 
             if(!key.equals(newKey)){
@@ -114,13 +119,13 @@ public class mainProgram {
                     find(key.substring(0, 6), false);
                 }
             }catch (StringIndexOutOfBoundsException e){
-
+                e.printStackTrace();
             }
         }
         //jf.setVisible(true);
     }
 
-    static String getClipboardString() throws IllegalStateException{
+    static CilpBoardReader getClipboardString() throws IllegalStateException{
         // 获取系统剪贴板
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         // 获取剪贴板中的内容
@@ -131,14 +136,24 @@ public class mainProgram {
             if (trans.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 try {
                     // 获取剪贴板中的文本内容
-                    String text = (String) trans.getTransferData(DataFlavor.stringFlavor);
-                    return text;
+                    return new CilpBoardReader((String) trans.getTransferData(DataFlavor.stringFlavor));
                 } catch (Exception e) {
+                    System.out.println("what you copied:can not parse what you copied");
                     e.printStackTrace();
                 }
             }
         }
 
-        return null;
+        return new CilpBoardReader(false);
+    }
+}
+class CilpBoardReader{
+    String content;
+    boolean isSupport=true;
+    public CilpBoardReader(String s){
+        this.content=s;
+    }
+    public CilpBoardReader(boolean isSupport){
+        this.isSupport=isSupport;
     }
 }
